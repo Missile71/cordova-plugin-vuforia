@@ -7,5 +7,6 @@
 - (void) cordovaStopTrackers:(CDVInvokedUrlCommand *)command;
 - (void) cordovaStartTrackers:(CDVInvokedUrlCommand *)command;
 - (void) cordovaUpdateTargets:(CDVInvokedUrlCommand *)command;
+- (void) cordovaAddHTML:(CDVInvokedUrlCommand *)command;
 
 @end
