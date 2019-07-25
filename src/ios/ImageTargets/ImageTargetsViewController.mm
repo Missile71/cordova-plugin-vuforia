@@ -26,6 +26,8 @@
 #import <Vuforia/VuMarkTarget.h>
 #import <Vuforia/VuMarkTargetResult.h>
 
+#define contains(str1, str2) ([str1 rangeOfString: str2 ].location != NSNotFound)
+
 @interface ImageTargetsViewController ()
 
 @property (assign, nonatomic) id<GLResourceHandler> glResourceHandler;
@@ -784,10 +786,8 @@
         
         if (NULL != dataSet) {
             NSLog(@"INFO: successfully loaded data set");
-            //NSArray  *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-            NSArray       *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
+            NSArray       *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
             NSString  *documentsDirectory = [paths objectAtIndex:0];
-            documentsDirectory = [documentsDirectory stringByAppendingString:@"/NoCloud"];
             // Load the data set from the app's resources location
             if (!dataSet->load([[NSString stringWithFormat:@"%@/%@", documentsDirectory,dataFile] cStringUsingEncoding:NSASCIIStringEncoding], Vuforia::STORAGE_ABSOLUTE)) {
                 NSLog(@"ERROR: failed to load data set");
@@ -1188,53 +1188,84 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
         //Execute javascript method or pure javascript if needed
         [self.webView stringByEvaluatingJavaScriptFromString:jsFunctionName];
     } else if (([actionType isEqualToString:@"apriVideo"]) || ([actionType isEqualToString:@"apriAudio"])) {
-        // apriVideo(marker_id, url,  id)
-        NSString* markerid = [json objectForKey:@"marker_id"];
-        //NSString* url = [json objectForKey:@"url"];
-        NSString* id = [json objectForKey:@"id"];
-        //[[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
         
-        NSURL *url = [NSURL URLWithString:[[json objectForKey:@"url"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-        //NSURL *url = [NSURL URLWithString:@"http://clips.vorwaerts-gmbh.de/VfE_html5.mp4"];
-        self.playerController = [[MoviePlayerViewController alloc] initWithNibName:nil bundle:nil];
-        self.playerController.url = url;
-        [self.playerController.moviePlayer initWithContentsOfURL:url];
+        NSString* videourl = [[[json objectForKey:@"url"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] lowercaseString];
         
-        //AGGIUNGO BARRA DI NAVIGAZIONE ZANICHELLI
-        UIView *navBarView=[[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 64)];
-        navBarView.backgroundColor = [self getUIColorObjectFromHexString:@"E30000" alpha:1.0];
-        navBarView.tag = 8;
-        UIImageView* testataImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"logo-zanichelli"]];
-        testataImageView.center = CGPointMake(self.view.bounds.size.width/2, 64/2);
-        [navBarView addSubview:testataImageView];
-        self.backButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [self.backButton setImage:[UIImage imageNamed:@"back.png"] forState:UIControlStateNormal];
-        [self.backButton addTarget:self
-                            action:@selector(closeVideo:)
-                  forControlEvents:UIControlEventTouchUpInside];
-        [self.backButton setTitle:@"" forState:UIControlStateNormal];
-        self.backButton.frame = CGRectMake(16.0, 16.0, 32.0, 32.0);
-        [navBarView addSubview:self.backButton];
-        self.playerController.navBarZanichelli =navBarView;
-        
-        //        [[NSNotificationCenter defaultCenter]
-        //         removeObserver:self
-        //         name:UIApplicationWillResignActiveNotification
-        //         object:nil];
-        //        [[NSNotificationCenter defaultCenter]
-        //         removeObserver:self
-        //         name:UIApplicationDidBecomeActiveNotification
-        //         object:nil];
-        
-        [self presentViewController:self.playerController animated:YES completion:nil];
-        [self.playerController.moviePlayer.moviePlayer play];
-        
-        
-        
-        //} else if ([actionType isEqualToString:@"apriAudio"]) {
-        //MISSILE HA VOLUTO CHE LO TOGLIESSI
-        // apriAudio(marker_id, url,  id)
-        
+        if( contains(videourl,@"mp4") ){
+            //KALTURA
+            // apriVideo(marker_id, url,  id)
+            NSString* markerid = [json objectForKey:@"marker_id"];
+            //NSString* url = [json objectForKey:@"url"];
+            NSString* id = [json objectForKey:@"id"];
+            //[[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+            
+            NSURL *url = [NSURL URLWithString:[[json objectForKey:@"url"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+            //NSURL *url = [NSURL URLWithString:@"http://clips.vorwaerts-gmbh.de/VfE_html5.mp4"];
+            self.playerController = [[MoviePlayerViewController alloc] initWithNibName:nil bundle:nil];
+            self.playerController.url = url;
+            [self.playerController.moviePlayer initWithContentsOfURL:url];
+            
+            //AGGIUNGO BARRA DI NAVIGAZIONE ZANICHELLI
+            UIView *navBarView=[[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 64)];
+            navBarView.backgroundColor = [self getUIColorObjectFromHexString:@"E30000" alpha:1.0];
+            navBarView.tag = 8;
+            UIImageView* testataImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"logo-zanichelli"]];
+            testataImageView.center = CGPointMake(self.view.bounds.size.width/2, 64/2);
+            [navBarView addSubview:testataImageView];
+            self.backButton = [UIButton buttonWithType:UIButtonTypeCustom];
+            [self.backButton setImage:[UIImage imageNamed:@"back.png"] forState:UIControlStateNormal];
+            [self.backButton addTarget:self
+                                action:@selector(closeVideo:)
+                      forControlEvents:UIControlEventTouchUpInside];
+            [self.backButton setTitle:@"" forState:UIControlStateNormal];
+            self.backButton.frame = CGRectMake(16.0, 16.0, 32.0, 32.0);
+            [navBarView addSubview:self.backButton];
+            self.playerController.navBarZanichelli =navBarView;
+            
+            //        [[NSNotificationCenter defaultCenter]
+            //         removeObserver:self
+            //         name:UIApplicationWillResignActiveNotification
+            //         object:nil];
+            //        [[NSNotificationCenter defaultCenter]
+            //         removeObserver:self
+            //         name:UIApplicationDidBecomeActiveNotification
+            //         object:nil];
+            
+            [self presentViewController:self.playerController animated:YES completion:nil];
+            [self.playerController.moviePlayer.moviePlayer play];
+            
+            
+            
+            //} else if ([actionType isEqualToString:@"apriAudio"]) {
+            //MISSILE HA VOLUTO CHE LO TOGLIESSI
+            // apriAudio(marker_id, url,  id)
+        } else {
+            //bEDITA
+            // apriLink(marker_id, url,  id)
+            //[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[[json objectForKey:@"url"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
+            
+            self.linkController = [[LinkViewController alloc] initWithNibName:nil bundle:nil];
+            self.linkController.url = [NSURLRequest requestWithURL:[NSURL URLWithString:[json objectForKey:@"url"]]];
+            [self.linkController.webView setAllowsInlineMediaPlayback:FALSE];
+            
+            //AGGIUNGO BARRA DI NAVIGAZIONE ZANICHELLI
+            UIView *navBarView=[[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 64)];
+            navBarView.backgroundColor = [self getUIColorObjectFromHexString:@"E30000" alpha:1.0];
+            navBarView.tag = 8;
+            UIImageView* testataImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"logo-zanichelli"]];
+            testataImageView.center = CGPointMake(self.view.bounds.size.width/2, 64/2);
+            [navBarView addSubview:testataImageView];
+            self.backButton = [UIButton buttonWithType:UIButtonTypeCustom];
+            [self.backButton setImage:[UIImage imageNamed:@"back.png"] forState:UIControlStateNormal];
+            [self.backButton addTarget:self
+                                action:@selector(closeVideo:)
+                      forControlEvents:UIControlEventTouchUpInside];
+            [self.backButton setTitle:@"" forState:UIControlStateNormal];
+            self.backButton.frame = CGRectMake(16.0, 16.0, 32.0, 32.0);
+            [navBarView addSubview:self.backButton];
+            self.linkController.navBarZanichelli =navBarView;
+            [self presentViewController:self.linkController animated:YES completion:nil];
+        }
     } else if ([actionType isEqualToString:@"apriLink"]) {
         // apriLink(marker_id, url,  id)
         //[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[[json objectForKey:@"url"] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]]];
@@ -1296,6 +1327,8 @@ shouldStartLoadWithRequest:(NSURLRequest *)request
                                          [navBarView addSubview:self.backButton];
                                          self.linkController.navBarZanichelli =navBarView;
                                          [self presentViewController:self.linkController animated:YES completion:nil];
+                                     } else {
+                                         [(AppDelegate *)[[UIApplication sharedApplication] delegate] chiudiTutto];
                                      }
                                  }];
     } else if ([actionType isEqualToString:@"apriDoc"]) {
