@@ -1,4 +1,4 @@
-/**
+cordova.define("cordova-plugin-vuforia.VuforiaPlugin", function(require, exports, module) { /**
  * VuforiaPlugin module, used within our Cordova front-end to both start and stop a Vuforia image recognition session.
  *
  * @type {object}
@@ -36,12 +36,18 @@ var VuforiaPlugin = {
       vuforiaLicense = options.vuforiaLicense,
       showAndroidCloseButton = !!options.showAndroidCloseButton,
       showDevicesIcon = !!options.showDevicesIcon,
-      autostopOnImageFound = true;
+      autostopOnImageFound = true,
+      book_id = options.book_id,
+      email = options.email,
+      prof_fullaname = options.prof_fullaname,
+      prof_id = options.prof_id,
+      path_documents = options.path_documents;
+      tipo = options.tipo
 
     if (typeof options.autostopOnImageFound !== "undefined" && options.autostopOnImageFound !==null && !options.autostopOnImageFound)
       autostopOnImageFound = false;
 
-    exec_options = [ databaseXmlFile , targetList, overlayMessage, vuforiaLicense, showAndroidCloseButton, showDevicesIcon, autostopOnImageFound ];
+    exec_options = [ databaseXmlFile , targetList, overlayMessage, vuforiaLicense, showAndroidCloseButton, showDevicesIcon, autostopOnImageFound , book_id, email, prof_fullaname, prof_id,path_documents,tipo];
 
     VuforiaPlugin.exec(successCallback, errorCallback, 'cordovaStartVuforia', exec_options);
   },
@@ -88,6 +94,10 @@ var VuforiaPlugin = {
     VuforiaPlugin.exec(successCallback, errorCallback, 'cordovaUpdateTargets', [ targets ]);
   },
 
+               
+  showHTML: function(url, markerid, successCallback, errorCallback){
+    VuforiaPlugin.exec(successCallback, errorCallback, 'cordovaAddHTML', [ url, markerid ]);
+  },
   /**
    * Handle an error from one of the plugin methods. If a callback is defined, an error message is passed to it. If not,
    * the error message is logged to the console.
@@ -131,3 +141,5 @@ var VuforiaPlugin = {
 };
 
 module.exports = VuforiaPlugin;
+
+});
