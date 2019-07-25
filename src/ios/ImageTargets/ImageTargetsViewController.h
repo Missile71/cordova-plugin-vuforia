@@ -27,6 +27,7 @@
     BOOL extendedTrackingIsOn;
 }
 
+
 @property (retain) NSString *imageTargetFile;
 @property (retain) NSString *imageTargetFile2;
 @property (retain) NSArray *imageTargetNames;
